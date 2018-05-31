@@ -1,4 +1,5 @@
 let mapleader = ","
+let maplocalleader = ","
 
 set encoding=utf-8
 
@@ -15,16 +16,19 @@ Plug 'tpope/vim-fugitive'
 Plug 'scrooloose/nerdtree'
 " fzf
 Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf'
 " sql stuff
-Plug 'vim-scripts/SQLUtilities'
+" Plug 'vim-scripts/SQLUtilities'
 " align (needed for SQL Formatter)
-Plug 'vim-scripts/align'
+" Plug 'vim-scripts/align'
 " Codi -- interactive scratchpad
 Plug 'metakirby5/codi.vim'
 " Startify -- startup screen
 Plug 'mhinz/vim-startify'
 " Line highlither -- color is bad
 " Plug 'miyakogi/conoline.vim'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'kshenoy/vim-signature'
 
 call plug#end()
 
@@ -33,6 +37,21 @@ nnoremap - ddp
 nnoremap _ ddkP
 inoremap <c-u> <esc>bveUea
 nnoremap <c-u> bveUe
+iabbrev pbd pdb
+iabbrev ipdb import pdb; pdb.set_trace()
+iabbrev frimc from ebill.invoice.models import Client
+" wrap a word in quotes
+nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
+vnoremap <leader>" <esc><esc>`<i"<esc>`>la"<esc>
+nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
+augroup leadercomments
+  autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
+  autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
+augroup END
+augroup mdcommands
+  autocmd FileType markdown onoremap ih :<c-u>execute "normal! ?^\\(==\\+\\\|--\\+\\)$\r:nohlsearch\rkvg_"<cr>
+  autocmd FileType markdown onoremap ah :<c-u>execute "normal! ?^\\(==\\+\\\|--\\+\\)$\r:nohlsearch\rg_ck0"<cr>
+augroup END
 
 " autoread for when a file is changed outside vim
 set autoread
@@ -101,7 +120,9 @@ nnoremap <leader>tw :tabnew<cr>
 " leader tl toggle between this and last accessed tab
 let g:lasttab = 1
 nnoremap <leader>tl :exe "tabn ".g:lasttab<CR>
-au TabLeave * let g:lasttab = tabpagenr()
+augroup tabpage
+  au TabLeave * let g:lasttab = tabpagenr()
+augroup END
 " Open a new tab with current buffer path
 nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 nnoremap <leader>ve :vsplit <c-r>=expand("%:p:h")<cr>/
@@ -115,31 +136,32 @@ nnoremap <leader>qq :tabe ~/buffer<cr>
 nnoremap <leader>qp :tabe ~/buffer.py<cr>
 nnoremap <leader>vp :vsplit ~/buffer.py<cr>
 
-" quickly open a markdown buffer for scribble
-nnoremap <leader>x :tabe ~/buffer.md<cr>
-
 " format sql
-nnoremap <leader>sq :SQLUFormatter<cr>
+" nnoremap <leader>sq :SQLUFormatter<cr>
 
 " tab settings
 set switchbuf=useopen,usetab,newtab
 set showtabline=2 
 " au BufAdd,BufNewFile * nested tab sball
 
-" Return to last edit position when opening files
-au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
+augroup returnposition
+  " Return to last edit position when opening files
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+augroup END
 " Always show the status line
 set laststatus=2
 
 " Format the status line
-set statusline=\ CWD:\ %r%{getcwd()}%h\ %{fugitive#statusline()}\ \ \ Line:\ %l\ \ Column:\ %c
-" TODO add git.
+set statusline=\%r%.20F
+set statusline+=\ %{fugitive#statusline()}
+set statusline+=%=Col:%c\ Line:%l/%L
 
-" pep8
-au BufNewFile,BufRead *.py:
+augroup pep
+  " pep8
+  au BufNewFile,BufRead *.py:
 	\ set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 |
 	\ set expandtab smarttab autoindent fileformat=unix
+augroup END
 
 " functions to copy/paste to X clipboard
 function! ClipboardYank()
@@ -152,3 +174,5 @@ endfunction
 noremap <leader>y y:call ClipboardYank()<cr>
 noremap <leader>p :call ClipboardPaste()<cr>p
 nnoremap <leader>Y ggVGy:call ClipboardYank()<cr>
+
+command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
