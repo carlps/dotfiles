@@ -3,6 +3,7 @@ let maplocalleader = ","
 
 set encoding=utf-8
 
+" Plugins ---- {{{
 " plug for plugins
 call plug#begin('~/.vim/plugged')
 
@@ -17,12 +18,10 @@ Plug 'scrooloose/nerdtree'
 " fzf
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf'
-" sql stuff
-" Plug 'vim-scripts/SQLUtilities'
-" align (needed for SQL Formatter)
-" Plug 'vim-scripts/align'
+" Auto format (for sql)
+Plug 'Chiel92/vim-autoformat'
 " Codi -- interactive scratchpad
-Plug 'metakirby5/codi.vim'
+" Plug 'metakirby5/codi.vim'
 " Startify -- startup screen
 Plug 'mhinz/vim-startify'
 " Line highlither -- color is bad
@@ -31,8 +30,9 @@ Plug 'editorconfig/editorconfig-vim'
 Plug 'kshenoy/vim-signature'
 
 call plug#end()
+" }}}
 
-" stuff from vimscript book
+" stuff from vimscript book ---- {{{
 nnoremap - ddp
 nnoremap _ ddkP
 inoremap <c-u> <esc>bveUea
@@ -44,6 +44,10 @@ iabbrev frimc from ebill.invoice.models import Client
 nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
 vnoremap <leader>" <esc><esc>`<i"<esc>`>la"<esc>
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
+" wrap a word in brackets
+nnoremap <leader>[ viw<esc>a]<esc>bi[<esc>lel
+nnoremap <leader>{ viw<esc>a}<esc>bi{<esc>lel
+nnoremap <leader>( viw<esc>a)<esc>bi(<esc>lel
 augroup leadercomments
   autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
   autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
@@ -52,42 +56,38 @@ augroup mdcommands
   autocmd FileType markdown onoremap ih :<c-u>execute "normal! ?^\\(==\\+\\\|--\\+\\)$\r:nohlsearch\rkvg_"<cr>
   autocmd FileType markdown onoremap ah :<c-u>execute "normal! ?^\\(==\\+\\\|--\\+\\)$\r:nohlsearch\rg_ck0"<cr>
 augroup END
+" }}}
 
+" Vimscript file settings ------- {{{
+augroup filetype_vim
+  autocmd!
+  autocmd FileType vim setlocal foldmethod=marker
+augroup END
+" }}}
+
+" General settings ---- {{{
 " autoread for when a file is changed outside vim
 set autoread
-
+let &autoread=1
 " lines to keep above and below cursor while scrolling
-set so=8
-
+set scrolloff=8
 " wildmenu for better tab completion
 set wildmenu
-
-" ignore .pyc files when autocompleting
-set wildignore=*.pyc
-
 " Enable folding
 set foldmethod=indent
 set foldlevel=99
 " show folds in left column
 set foldcolumn=1
-
 " Enable folding with the spacebar
 nnoremap <space> za
-
 " show line numbers and ruler
 set number
 set ruler
-
 " ignore case when searching lower only
 set ignorecase
 set smartcase 
 " Set ctrl-l to unhighlight searchterms
 nnoremap <silent> <C-l> :nohl<CR><C-l>
-
-" syntax highlighting
-let python_highlight_all=1
-syntax on
-
 set linebreak
 set autoindent
 set smartindent
@@ -97,12 +97,54 @@ set wrap
 set splitright
 set splitbelow
 
+" Normal mode arrows resize splits
+nnoremap <Up> :resize +2<CR>
+nnoremap <Down> :resize -2<CR>
+nnoremap <Left> :vertical resize +2<CR>
+nnoremap <Right> :vertical resize -2<CR>
+
+
 " in visual mode, pressing * or # will search for current selection
 " * goes down, # goes up.
 vnoremap <silent> * :<C-u>call VisualSelection('', '')<CR>/<C-R>=@/<CR><CR>
 vnoremap <silent> # :<C-u>call VisualSelection('', '')<CR>?<C-R>=@/<CR><CR>
 
-" leader stuff
+" tab settings
+set switchbuf=useopen,usetab,newtab
+set showtabline=2 
+" autocmd BufAdd,BufNewFile * nested tab sball
+
+augroup returnposition
+  " Return to last edit position when opening files
+  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+augroup END
+" Always show the status line
+set laststatus=2
+" }}}
+
+" Format the status line ---- {{{
+set statusline=\%r%.60F
+set statusline+=\ %{fugitive#statusline()}
+set statusline+=%=Col:%c\ Line:%l/%L
+" }}}
+
+" Python specific ---- {{{
+" ignore .pyc files when autocompleting
+set wildignore=*.pyc
+" syntax highlighting
+let python_highlight_all=1
+syntax on
+
+augroup pep
+  autocmd BufNewFile,BufRead *.py:
+	\ set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 |
+	\ set expandtab smarttab autoindent fileformat=unix |
+  	\ set colorcolumn=80
+  autocmd FileType python highlight ColorColumn ctermbg=darkgray | setlocal colorcolumn=80
+augroup END
+" }}}
+
+" leader stuff ---- {{{
 nnoremap <leader>vr :vsplit $MYVIMRC<cr>
 nnoremap <leader>r :source $MYVIMRC<cr>
 nnoremap <leader>l :bnext<cr>
@@ -121,7 +163,7 @@ nnoremap <leader>tw :tabnew<cr>
 let g:lasttab = 1
 nnoremap <leader>tl :exe "tabn ".g:lasttab<CR>
 augroup tabpage
-  au TabLeave * let g:lasttab = tabpagenr()
+  autocmd TabLeave * let g:lasttab = tabpagenr()
 augroup END
 " Open a new tab with current buffer path
 nnoremap <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
@@ -135,35 +177,11 @@ nnoremap <leader>cd :cd %:p:h<cr>:pwd<cr>
 nnoremap <leader>qq :tabe ~/buffer<cr>
 nnoremap <leader>qp :tabe ~/buffer.py<cr>
 nnoremap <leader>vp :vsplit ~/buffer.py<cr>
+nnoremap <leader>qs :tabe ~/buffer.sql<cr>
+nnoremap <leader>vs :vsplit ~/buffer.sql<cr>
+" }}}
 
-" format sql
-" nnoremap <leader>sq :SQLUFormatter<cr>
-
-" tab settings
-set switchbuf=useopen,usetab,newtab
-set showtabline=2 
-" au BufAdd,BufNewFile * nested tab sball
-
-augroup returnposition
-  " Return to last edit position when opening files
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-augroup END
-" Always show the status line
-set laststatus=2
-
-" Format the status line
-set statusline=\%r%.20F
-set statusline+=\ %{fugitive#statusline()}
-set statusline+=%=Col:%c\ Line:%l/%L
-
-augroup pep
-  " pep8
-  au BufNewFile,BufRead *.py:
-	\ set tabstop=4 softtabstop=4 shiftwidth=4 textwidth=79 |
-	\ set expandtab smarttab autoindent fileformat=unix
-augroup END
-
-" functions to copy/paste to X clipboard
+" functions to copy/paste to X clipboard ---- {{{
 function! ClipboardYank()
   call system('xclip -i -selection clipboard', @@)
 endfunction
@@ -174,5 +192,10 @@ endfunction
 noremap <leader>y y:call ClipboardYank()<cr>
 noremap <leader>p :call ClipboardPaste()<cr>p
 nnoremap <leader>Y ggVGy:call ClipboardYank()<cr>
+" }}}
 
+" Use rg with fzf in Find
 command! -bang -nargs=* Find call fzf#vim#grep('rg --column --line-number --no-heading --fixed-strings --ignore-case --no-ignore --hidden --follow --glob "!.git/*" --color "always" '.shellescape(<q-args>), 1, <bang>0)
+
+" use F3 to autoformat
+noremap <F3> :Autoformat<CR>
