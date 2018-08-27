@@ -6,7 +6,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 # read local bashrc if exists
-test -r .bashrc.local && source .bashrc.local
+test -r ~/.bashrc.local && source ~/.bashrc.local
 
 # set vi editing mode
 set -o vi

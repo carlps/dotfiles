@@ -44,10 +44,14 @@ iabbrev frimc from ebill.invoice.models import Client
 nnoremap <leader>" viw<esc>a"<esc>bi"<esc>lel
 vnoremap <leader>" <esc><esc>`<i"<esc>`>la"<esc>
 nnoremap <leader>' viw<esc>a'<esc>bi'<esc>lel
+vnoremap <leader>' <esc><esc>`<i'<esc>`>la'<esc>
 " wrap a word in brackets
 nnoremap <leader>[ viw<esc>a]<esc>bi[<esc>lel
 nnoremap <leader>{ viw<esc>a}<esc>bi{<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>bi(<esc>lel
+vnoremap <leader>[ <esc><esc>`<i[<esc>`>la]<esc>
+vnoremap <leader>{ <esc><esc>`<i{<esc>`>la}<esc>
+vnoremap <leader>( <esc><esc>`<i(<esc>`>la)<esc>
 augroup leadercomments
   autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
   autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
