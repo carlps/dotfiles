@@ -49,9 +49,14 @@ vnoremap <leader>' <esc><esc>`<i'<esc>`>la'<esc>
 nnoremap <leader>[ viw<esc>a]<esc>bi[<esc>lel
 nnoremap <leader>{ viw<esc>a}<esc>bi{<esc>lel
 nnoremap <leader>( viw<esc>a)<esc>bi(<esc>lel
+nnoremap <leader>< viw<esc>a><esc>bi<<esc>lel
 vnoremap <leader>[ <esc><esc>`<i[<esc>`>la]<esc>
 vnoremap <leader>{ <esc><esc>`<i{<esc>`>la}<esc>
 vnoremap <leader>( <esc><esc>`<i(<esc>`>la)<esc>
+vnoremap <leader>< <esc><esc>`<i<<esc>`>la><esc>
+" delete bracket pair (requires being on one of the brackets)
+nnoremap <leader>dp %x``x
+
 augroup leadercomments
   autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
   autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
@@ -181,8 +186,10 @@ nnoremap <leader>cd :cd %:p:h<cr>:pwd<cr>
 nnoremap <leader>qq :tabe ~/buffer<cr>
 nnoremap <leader>qp :tabe ~/buffer.py<cr>
 nnoremap <leader>vp :vsplit ~/buffer.py<cr>
+nnoremap <leader>hp :split ~/buffer.py<cr>
 nnoremap <leader>qs :tabe ~/buffer.sql<cr>
 nnoremap <leader>vs :vsplit ~/buffer.sql<cr>
+nnoremap <leader>hs :split ~/buffer.sql<cr>
 " }}}
 
 " functions to copy/paste to X clipboard ---- {{{
