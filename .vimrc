@@ -28,6 +28,39 @@ Plug 'mhinz/vim-startify'
 " Plug 'miyakogi/conoline.vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'kshenoy/vim-signature'
+" Pylint
+Plug 'gryf/pylint-vim'
+
+let mapleader = ","
+let maplocalleader = ","
+
+set encoding=utf-8
+
+" Plugins ---- {{{
+" plug for plugins
+call plug#begin('~/.vim/plugged')
+
+" Show line indentions
+Plug 'Yggdroot/indentline'
+" flake8
+Plug 'nvie/vim-flake8'
+" git stuff
+Plug 'tpope/vim-fugitive'
+" file tree
+Plug 'scrooloose/nerdtree'
+" fzf
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf'
+" Auto format (for sql)
+Plug 'Chiel92/vim-autoformat'
+" Codi -- interactive scratchpad
+" Plug 'metakirby5/codi.vim'
+" Startify -- startup screen
+Plug 'mhinz/vim-startify'
+" Line highlither -- color is bad
+" Plug 'miyakogi/conoline.vim'
+Plug 'editorconfig/editorconfig-vim'
+Plug 'kshenoy/vim-signature'
 
 call plug#end()
 " }}}
@@ -58,8 +91,9 @@ vnoremap <leader>< <esc><esc>`<i<<esc>`>la><esc>
 nnoremap <leader>dp %x``x
 
 augroup leadercomments
-  autocmd FileType python nnoremap <buffer> <localleader>c I#<esc>
+  autocmd FileType python nnoremap <buffer> <localleader>c I# <esc>
   autocmd FileType javascript nnoremap <buffer> <localleader>c I//<esc>
+  autocmd FileType sql nnoremap <buffer> <localleader>c I//<esc>
 augroup END
 augroup mdcommands
   autocmd FileType markdown onoremap ih :<c-u>execute "normal! ?^\\(==\\+\\\|--\\+\\)$\r:nohlsearch\rkvg_"<cr>
@@ -151,15 +185,21 @@ augroup pep
   	\ set colorcolumn=80
   autocmd FileType python highlight ColorColumn ctermbg=darkgray | setlocal colorcolumn=80
 augroup END
+
+" todo get this to run and give output in window.
+" also would be good if it plays well with django
+function! PylintThis()
+	:!pylint %:p --reports=n --msg-template="{path}:{line}: {msg_id} {symbol}, {obj} {msg}"
+endfunction
+nnoremap <leader>l :call PylintThis()<cr>
 " }}}
 
 " leader stuff ---- {{{
 nnoremap <leader>vr :vsplit $MYVIMRC<cr>
 nnoremap <leader>r :source $MYVIMRC<cr>
-nnoremap <leader>l :bnext<cr>
-nnoremap <leader>h :bprevious<cr>
 nnoremap <leader>f :Files<cr>
 nnoremap <leader>rn :set relativenumber!<cr>
+nnoremap <leader>b :files<enter>:b
 " leader nerdtree
 nnoremap <leader>kb :NERDTree<cr>
 " leader tab stuff
@@ -190,6 +230,11 @@ nnoremap <leader>hp :split ~/buffer.py<cr>
 nnoremap <leader>qs :tabe ~/buffer.sql<cr>
 nnoremap <leader>vs :vsplit ~/buffer.sql<cr>
 nnoremap <leader>hs :split ~/buffer.sql<cr>
+
+" format a json file
+augroup jsonformat
+  autocmd FileType json nnoremap <buffer> <localleader>j :%!python -m json.tool<cr>
+augroup END
 " }}}
 
 " functions to copy/paste to X clipboard ---- {{{
