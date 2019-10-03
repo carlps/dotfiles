@@ -88,7 +88,7 @@ vnoremap <leader>{ <esc><esc>`<i{<esc>`>la}<esc>
 vnoremap <leader>( <esc><esc>`<i(<esc>`>la)<esc>
 vnoremap <leader>< <esc><esc>`<i<<esc>`>la><esc>
 " delete bracket pair (requires being on one of the brackets)
-nnoremap <leader>dp %x``x
+nnoremap <leader>dp %%x``x
 
 augroup leadercomments
   autocmd FileType python nnoremap <buffer> <localleader>c I# <esc>
@@ -230,6 +230,9 @@ nnoremap <leader>hp :split ~/buffer.py<cr>
 nnoremap <leader>qs :tabe ~/buffer.sql<cr>
 nnoremap <leader>vs :vsplit ~/buffer.sql<cr>
 nnoremap <leader>hs :split ~/buffer.sql<cr>
+nnoremap <leader>vj :vsplit ~/buffer.js<cr>
+nnoremap <leader>hj :split ~/buffer.js<cr>
+
 
 " format a json file
 augroup jsonformat
